@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*Кастомный цвет для колокольчика*/
+.light-bell {
+	color: #0d6efd;
+}
+
+body {
+	overflow: hidden;
+}
+
+html,
+body,
+#root,
+* {
+	font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
+		monospace;
+	font-weight: 400;
+	/* transition: all;
+  transition-duration: 200ms; */
+}
+
+h1 {
+	font-family: 'JetBrains Mono';
+	font-size: 1.875rem; /* text-3xl */
+	font-weight: 600; /* font-semibold */
+	color: #475569; /* text-slate-600 */
+	margin-bottom: 1rem; /* mb-4 */
+}
+
+.rbt-menu {
+	z-index: 9999 !important;
+	position: fixed !important;
+}
