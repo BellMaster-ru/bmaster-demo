@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as sounds from "@/api/sounds";
+import * as sounds from "@/api/demo";
 
 
 export const useSounds = () => {

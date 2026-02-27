@@ -5,13 +5,13 @@ import {
 	getAccounts,
 	updateAccount,
 	UpdateAccountRequest
-} from '@/api/access/accounts';
+} from '@/api/demo';
 import Panel from '@/components/Panel';
 import PageLayout from '@/components/PageLayout';
 import { Name, Note, Value } from '@/components/text';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import './style.css';
-import { getRoles, RoleInfo } from '@/api/access/roles';
+import { getRoles, RoleInfo } from '@/api/demo';
 import { useEffect, useState } from 'react';
 import { cn } from '@/utils';
 import Field from '@/components/Field';

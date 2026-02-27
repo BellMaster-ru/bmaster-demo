@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Card, Spinner } from 'react-bootstrap';
 
-import * as icoms from '@/api/icoms';
+import * as icoms from '@/api/demo';
 import {
 	Trash,
 	MusicNote,
@@ -61,8 +61,6 @@ export function IcomQuery({
 			);
 			break;
 	}
-
-	console.log(queryInfo);
 
 	return (
 		<div

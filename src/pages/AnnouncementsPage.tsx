@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { Mic, StopCircle } from 'react-bootstrap-icons';
-import { WS_BASE_URL } from '@/api';
+import { buildWsUrl } from '@/api';
 import { H2, Note } from '@/components/text';
 import Panel from '@/components/Panel';
 import Kbd from '@/components/Kbd';
@@ -241,7 +241,6 @@ export default function AnnouncementsPage() {
 		const { ws } = connection;
 
 		const wsOpen = () => {
-			console.log('[WS] Opened');
 			const startMessage: WsStartMessage = {
 				type: 'start',
 				icom: 'main',
@@ -267,7 +266,6 @@ export default function AnnouncementsPage() {
 
 		const wsMessage = (e: MessageEvent) => {
 			const data = e.data;
-			console.log('[WS] Message:', data);
 			let msg: WsServerMessage | null = null;
 			try {
 				msg = JSON.parse(String(data)) as WsServerMessage;
@@ -302,7 +300,6 @@ export default function AnnouncementsPage() {
 			};
 
 		const wsClose = () => {
-			console.log('[WS] Closed');
 			if (!isStoppingRef.current && connectionRef.current) {
 				stop({ closeSocket: false, nextStatus: 'idle' });
 			}
@@ -354,7 +351,10 @@ export default function AnnouncementsPage() {
 
 		try {
 			setStatus('connecting');
-			const wsUrl = `${WS_BASE_URL}/api/queries/stream?token=${encodeURIComponent(token)}`;
+			const wsUrl = buildWsUrl(
+				'/api/queries/stream',
+				new URLSearchParams({ token })
+			);
 			ws = new WebSocket(wsUrl);
 			ws.binaryType = 'arraybuffer';
 			pendingStart.ws = ws;

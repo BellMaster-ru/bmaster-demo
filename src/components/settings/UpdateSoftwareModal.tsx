@@ -3,7 +3,6 @@ import { CheckCircleFill, ExclamationTriangle } from 'react-bootstrap-icons';
 import Button from '@/components/Button';
 
 export type UpdatePhase = 'confirm' | 'running' | 'success' | 'error';
-const UPDATE_MODAL_DEBUG_NAMESPACE = '[settings/update-modal]';
 
 export type UpdateSoftwareModalProps = {
 	show: boolean;
@@ -25,31 +24,20 @@ const UpdateSoftwareModal = ({
 	onRequestReboot
 }: UpdateSoftwareModalProps) => {
 	const isRunning = phase === 'running';
-	const logUpdateModal = (event: string, payload?: unknown) => {
-		if (payload === undefined) {
-			console.log(UPDATE_MODAL_DEBUG_NAMESPACE, event);
-			return;
-		}
-		console.log(UPDATE_MODAL_DEBUG_NAMESPACE, event, payload);
-	};
 
 	const handleClose = () => {
-		logUpdateModal('close_click', { phase, isRunning });
 		onClose();
 	};
 
 	const handleConfirm = () => {
-		logUpdateModal('confirm_click', { phase });
 		onConfirm();
 	};
 
 	const handleRetry = () => {
-		logUpdateModal('retry_click', { phase });
 		onRetry();
 	};
 
 	const handleRequestReboot = () => {
-		logUpdateModal('request_reboot_click', { phase });
 		onRequestReboot();
 	};
 

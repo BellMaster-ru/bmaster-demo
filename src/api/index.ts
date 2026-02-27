@@ -6,37 +6,33 @@ const apiErrorSchema = z.object({
 	detail: z.string()
 });
 
-type ApiError = z.infer<typeof apiErrorSchema>;
-
-export let ORIGIN = 'localhost:8000';
-
-export let SECURED = false;
-export const MOCK_API_ENABLED = true;
-
-if (typeof window !== 'undefined') {
-	SECURED = window.location.protocol === 'https:';
-
-	if (import.meta.env.DEV) {
-		// DEV MODE
-		ORIGIN = `${window.location.hostname}:8000`;
-	} else {
-		// PRODUCTION MODE
-		ORIGIN = '';
+const normalizePath = (path: string): string => {
+	if (!path) {
+		return '/';
 	}
-}
+	return path.startsWith('/') ? path : `/${path}`;
+};
 
-const protocolHttp = SECURED ? 'https' : 'http';
-const protocolWs = SECURED ? 'wss' : 'ws';
-const currentHost = typeof window !== 'undefined' ? window.location.host : ORIGIN;
-const resolvedHost = ORIGIN === '' ? currentHost : ORIGIN;
+export const buildApiAssetUrl = (path: string): string => {
+	return normalizePath(path);
+};
 
-export const HTTP_BASE_URL =
-	import.meta.env.VITE_HTTP_BASE_URL || `${protocolHttp}://${resolvedHost}`;
-export const WS_BASE_URL =
-	import.meta.env.VITE_WS_BASE_URL || `${protocolWs}://${resolvedHost}`;
+export const buildWsUrl = (path: string, search?: URLSearchParams): string => {
+	const normalizedPath = normalizePath(path);
+	const isSecure =
+		typeof window !== 'undefined' && window.location.protocol === 'https:';
+	const protocol = isSecure ? 'wss' : 'ws';
+	const host =
+		typeof window !== 'undefined' ? window.location.host : 'mock.local';
+	const url = new URL(`${protocol}://${host}${normalizedPath}`);
+	if (search) {
+		url.search = search.toString();
+	}
+	return url.toString();
+};
 
 export const api = axios.create({
-	baseURL: `${HTTP_BASE_URL}/api`,
+	baseURL: '/api',
 	adapter: mockAxiosAdapter
 });
 

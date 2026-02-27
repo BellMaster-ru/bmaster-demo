@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { playSound } from '@/api/queries';
+import { playSound } from '@/api/demo';
 import { useIcomContext } from '@/pages/icoms';
 import { clamp } from '@/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

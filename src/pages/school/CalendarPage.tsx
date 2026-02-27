@@ -22,13 +22,13 @@ import {
 	ScheduleAssignmentInfo,
 	getActiveAssignment,
 	ScheduleWeekdays
-} from '@/api/school/assignments';
+} from '@/api/demo';
 import {
 	createOverride,
 	getOverridesByDateRange,
 	ScheduleOverrideInfo
-} from '@/api/school/overrides';
-import { getSchedules, ScheduleInfo } from '@/api/school/schedules';
+} from '@/api/demo';
+import { getSchedules, ScheduleInfo } from '@/api/demo';
 
 const CalendarPage = () => {
 	const queryClient = useQueryClient();
@@ -307,11 +307,6 @@ const CalendarPage = () => {
 		};
 	}, [brushing, monthDayCount, dayA]);
 
-	useEffect(
-		() => console.log(activeAssignment),
-		[assignmentsByDay, overridesByDay, schedulesById, schedulesQuery.data]
-	);
-
 	let muteAllLessons = false;
 	let muteLessons = new Set<number>();
 	if (overridesByDay) {
@@ -336,8 +331,6 @@ const CalendarPage = () => {
 	type LessonTime = { start_at: string; end_at: string };
 	let selectedDaysLessons: (LessonTime | null)[] = [];
 
-	console.log(startDay, endDay);
-
 	if (startDay !== null && schedulesById && assignmentsByDay) {
 		const isEqual = (a: LessonTime, b: LessonTime) =>
 			typeof a === 'object' &&
@@ -354,8 +347,6 @@ const CalendarPage = () => {
 				schedulesById[lastAssignment[weekdayApiNames[lastWeekday]]]?.lessons) ||
 				[]
 		);
-		console.log('SELECTED DAYS 2 LESSONS:', selectedDaysLessons);
-
 		if (endDay !== null) {
 			for (let day = startDay + 1; day <= endDay; day++) {
 				lastAssignment = assignmentsByDay[day] || lastAssignment;
@@ -381,8 +372,6 @@ const CalendarPage = () => {
 		}
 	}
 
-	console.log('SELECTED DAYS LESSONS:', selectedDaysLessons);
-
 	// СКРИПТ МОМЕНТ
 	let firstDayAssignment: ScheduleAssignmentInfo | null = null;
 	if (startDay !== null) {
@@ -392,7 +381,6 @@ const CalendarPage = () => {
 				? assignmentsByDay[dayForTime]
 				: activeAssignment;
 	}
-	console.log(firstDayAssignment);
 	return (
 		<PageLayout pageTitle='Календарь' className='max-w-[50rem]'>
 				<div className='grid grid-cols-1 items-start gap-4 xl:grid-cols-[22rem_24rem] xl:justify-center'>
@@ -639,13 +627,11 @@ const CalendarPage = () => {
 											disabled={currentAssignment === null}
 											selected={schedule ? [schedule] : []}
 											onChange={(selected) => {
-												console.log(selected);
 												// @ts-ignore
 												const val = selected[0] as
 													| ScheduleInfo
 													| 'none'
 													| undefined;
-												console.log(val);
 												const weekdays = {
 													monday: currentAssignment?.monday,
 													tuesday: currentAssignment?.tuesday,

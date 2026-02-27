@@ -6,7 +6,7 @@ import {
 	Lesson,
 	patchBellsSettings,
 	patchLesson
-} from '@/api/lite/bells';
+} from '@/api/demo';
 import ForegroundNotification from '@/components/ForegroundNotification';
 import PageLayout from '@/components/PageLayout';
 import { useSounds } from '@/sounds';
@@ -41,12 +41,12 @@ import {
 	getSchedules,
 	ScheduleInfo,
 	ScheduleLesson
-} from '@/api/school/schedules';
-import { getActiveAssignment } from '@/api/school/assignments';
+} from '@/api/demo';
+import { getActiveAssignment } from '@/api/demo';
 import {
 	createOverride,
 	getOverridesByDateRange
-} from '@/api/school/overrides';
+} from '@/api/demo';
 
 /* ---------------- Context ---------------- */
 export type TodayLessonsContext = {
@@ -145,7 +145,6 @@ const TodayPage = () => {
 		queryKey: ['school.schedules'],
 		queryFn: () => getSchedules()
 	});
-	console.log(schedulesQuery);
 
 	let schedulesById: Record<string, ScheduleInfo> | null = null;
 	if (schedulesQuery.data) {
@@ -159,7 +158,6 @@ const TodayPage = () => {
 		queryKey: ['school.assignment'],
 		queryFn: () => getActiveAssignment(formatDate(today))
 	});
-	console.log(activeAssignmentQuery);
 
 	const weekdayNormalMap = {
 		0: 6,
@@ -181,13 +179,11 @@ const TodayPage = () => {
 	];
 
 	const wd = weekdayApiNames[weekdayNormalMap[today.getDay()]];
-	console.log(wd);
 	const scheduleId =
 		(activeAssignmentQuery.data && activeAssignmentQuery.data[wd]) || null;
 
 	const schedule =
 		(scheduleId !== null && schedulesById && schedulesById[scheduleId]) || null;
-	console.log(schedule);
 
 	const displayLessons = schedule && schedule.lessons;
 
@@ -195,8 +191,6 @@ const TodayPage = () => {
 		queryKey: ['school.override'],
 		queryFn: () => getOverridesByDateRange(today, today)
 	});
-
-	console.log(activeOverrideQuery);
 	const activeOverride =
 		(activeOverrideQuery.data && activeOverrideQuery.data[0]) || null;
 

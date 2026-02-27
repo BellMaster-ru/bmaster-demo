@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Spinner, Modal } from 'react-bootstrap';
-import * as sounds from '@/api/sounds';
+import * as sounds from '@/api/demo';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Panel from '@/components/Panel';
 import {
@@ -11,13 +11,12 @@ import {
 	Plus,
 	Speaker,
 	Trash,
-	PlayFill,
-	PlusLg
+	PlayFill
 } from 'react-bootstrap-icons';
 import { formatDurationMSS, humanFileSize } from '@/utils';
 import AudioPlayer from '@/components/AudioPlayer';
-import { HTTP_BASE_URL } from '@/api';
-import { playSound } from '@/api/queries';
+import { buildApiAssetUrl } from '@/api';
+import { playSound } from '@/api/demo';
 import FileUploadButton from '@/components/FileUploadButton';
 import { H2, Name, Value, Note } from '@/components/text';
 import { useSounds } from '@/sounds';
@@ -70,8 +69,6 @@ const SoundsPage = () => {
 	const selectedSound = selectedSoundName
 		? soundMap[selectedSoundName]
 		: undefined;
-
-	console.log(soundList);
 
 	return (
 		<PageLayout pageTitle='Библиотека звуков'>
@@ -165,7 +162,9 @@ const SoundsPage = () => {
 									<Value>
 										<AudioPlayer
 											className='w-full'
-											src={`${HTTP_BASE_URL}/api/sounds/file/${selectedSound.name}`}
+											src={buildApiAssetUrl(
+												`/api/sounds/file/${selectedSound.name}`
+											)}
 										/>
 									</Value>
 									<Note>Прослушать звук в браузере</Note>

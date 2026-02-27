@@ -1,6 +1,6 @@
-import { getActiveAssignment } from '@/api/school/assignments';
-import { getOverridesByDateRange } from '@/api/school/overrides';
-import { getSchedules } from '@/api/school/schedules';
+import { getActiveAssignment } from '@/api/demo';
+import { getOverridesByDateRange } from '@/api/demo';
+import { getSchedules } from '@/api/demo';
 import { countMinutes, formatDate } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';

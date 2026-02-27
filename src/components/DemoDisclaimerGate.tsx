@@ -9,12 +9,19 @@ type DemoDisclaimerGateProps = {
 
 export default function DemoDisclaimerGate({ children }: DemoDisclaimerGateProps) {
 	const [accepted, setAccepted] = useState(false);
+	const [mockReady, setMockReady] = useState(false);
+
+	const acceptDisclaimer = () => {
+		setAccepted(true);
+	};
 
 	useEffect(() => {
 		if (!accepted) {
+			setMockReady(false);
 			return;
 		}
 		initializeMockEnvironment();
+		setMockReady(true);
 	}, [accepted]);
 
 	if (!accepted) {
@@ -34,12 +41,16 @@ export default function DemoDisclaimerGate({ children }: DemoDisclaimerGateProps
 					</p>
 				</Modal.Body>
 				<Modal.Footer>
-					<Button onClick={() => setAccepted(true)} className='w-full'>
+					<Button onClick={acceptDisclaimer} className='w-full'>
 						Понятно, продолжить
 					</Button>
 				</Modal.Footer>
 			</Modal>
 		);
+	}
+
+	if (!mockReady) {
+		return null;
 	}
 
 	return <>{children}</>;

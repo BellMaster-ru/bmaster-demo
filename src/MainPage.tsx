@@ -18,7 +18,7 @@ import {
 	Wrench,
 } from 'react-bootstrap-icons';
 import { useQuery } from '@tanstack/react-query';
-import { AccountLocalInfo, getLocalUser } from '@/api/auth';
+import { AccountLocalInfo, getLocalUser } from '@/api/demo';
 import Clock from './components/Clock';
 import { LocalUserProvider } from '@/contexts/LocalUserContext';
 
@@ -29,7 +29,7 @@ import SchedulesPage from '@/pages/school/SchedulesPage';
 
 import TodayPage from '@/pages/school/TodayPage';
 import DraggableCard from '@/components/DraggableCard';
-import * as icoms from '@/api/icoms';
+import * as icoms from '@/api/demo';
 import { IcomQuery } from '@/pages/icoms/queries';
 import SettingsPage from './pages/SettingsPage';
 import { H2, Note } from './components/text';

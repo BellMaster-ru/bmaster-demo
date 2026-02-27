@@ -30,7 +30,8 @@ import {
 	rebootSchoolDevice,
 	setSchoolVolume,
 	updateSchoolSoftware
-} from '@/api/school/settings';
+} from '@/api/demo';
+import { resetDemoState } from '@/api/mock';
 
 const HEALTH_POLL_INTERVAL_MS = 2000;
 const HEALTH_TIMEOUT_MS = 180000;
@@ -362,12 +363,7 @@ const SettingsPage = () => {
 
 	const resetDemoMutation = useMutation({
 		mutationKey: ['settings.demo.reset'],
-		mutationFn: async () => {
-			if (!window.__bmasterMock?.reset) {
-				throw new Error('demo reset api unavailable');
-			}
-			await window.__bmasterMock.reset();
-		},
+		mutationFn: () => resetDemoState(),
 		onSuccess: () => {
 			setShowResetDemoConfirm(false);
 			window.location.href = '/';

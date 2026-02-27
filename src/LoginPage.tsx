@@ -5,9 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axios from 'axios';
-import { login } from './api/auth';
+import { login } from '@/api/demo';
 import { useQuery } from '@tanstack/react-query';
-import { getServiceInfo } from './api/service';
+import { getServiceInfo } from '@/api/demo';
 import Panel from '@/components/Panel';
 import Button from '@/components/Button';
 import { H2 } from '@/components/text';
@@ -70,6 +70,9 @@ function OperateLoginForm() {
 				<Form.Control.Feedback type='invalid'>
 					{errors.password?.message}
 				</Form.Control.Feedback>
+				<Form.Text className='text-muted'>
+					Демо-подсказка: логин <strong>root</strong>, пароль <strong>bmaster</strong>.
+				</Form.Text>
 			</Form.Group>
 
 			{errorMessage && (
@@ -141,6 +144,9 @@ function ServiceLoginForm() {
 				<Form.Control.Feedback type='invalid'>
 					{errors.password?.message}
 				</Form.Control.Feedback>
+				<Form.Text className='text-muted'>
+					Демо-подсказка: пароль <strong>bmaster</strong>.
+				</Form.Text>
 			</Form.Group>
 
 			{errorMessage && (
@@ -170,7 +176,7 @@ export default function LoginPage() {
 	let content;
 	if (serviceInfoQuery.isLoading) content = <Card.Text>Загрузка...</Card.Text>;
 	else if (serviceInfoQuery.isError)
-		content = <Card.Text>Ошибка подключения</Card.Text>;
+		content = <Card.Text>Ошибка демо-сервиса</Card.Text>;
 	else if (serviceInfoQuery.data?.enabled) content = <ServiceLoginForm />;
 	else content = <OperateLoginForm />;
 

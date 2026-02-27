@@ -1,47 +1,55 @@
-# BMaster Demo (Client-side Mock Backend)
+# BMaster demo
 
-Frontend demo runs without a real server: all `/api/*` calls and `/api/queries/stream` WebSocket are emulated in browser.
-Before entering the app, a blocking warning modal explains that this is a limited demo.
+Этот репозиторий содержит только демо: настоящий бэкенд не поддерживается.  
+Все вызовы `/api/*` и вебсокеты `/api/queries/stream` эмулируются в браузере.
 
-## Run
+## Запуск
 
 ```bash
 npm run dev
 ```
 
-## Demo Login
+## Логин в демо
 
-Service mode is enabled by default.
+В демо доступен только сервисный режим
 
-- Login: `root`
-- Password: `bmaster`
+- Пароль: `bmaster`
 
-## Data Storage
+## Хранение данных
 
-- Mock state (accounts, school, settings, metadata): `localStorage`
-- Sound files: `IndexedDB`
+- Моковое состояние (аккаунты, школа, настройки, метаданные): `localStorage`
+- Звуковые файлы: `IndexedDB`
 
-Runtime processes (active playback/stream sessions/timers) are reset on page reload.
+Процессы времени выполнения (активное воспроизведение / сессии стриминга / таймеры) сбрасываются при перезагрузке страницы.
 
-## Simplified Scheduler
+## Упрощённый планировщик
 
-- In demo mode, a built-in scheduler checks school assignments each second.
-- It queues lesson start/end sounds from the active schedule for the current weekday.
-- It respects:
+- В режиме демо встроенный планировщик проверяет школьные назначения каждую секунду.
+- Он ставит в очередь звуки начала/конца уроков из активного расписания для текущего дня недели.
+- Учитывает:
   - `school/overrides` (`mute_all_lessons`, `mute_lessons`)
-  - `lite/bells` global enable + weekday switches
-  - per-lesson disable in `lite/bells/lessons`
+  - глобальное включение `lite/bells` + переключатели по дням недели
+  - отключение отдельных уроков в `lite/bells/lessons`
 
-## Reset Demo State
+## Сброс демо-состояния
 
-In Settings page:
+На странице настроек:
 
-- Use `Сбросить демо-данные` button.
+- Нажмите кнопку `Сбросить демо-данные`.
 
-Or in browser console:
+Или в консоли браузера:
 
 ```js
 await window.__bmasterMock?.reset();
 ```
 
-This resets seed data, clears sound blobs, and removes auth token.
+Это сбросит исходные данные, очистит звуковые blob'ы и удалит токен авторизации.
+
+## Поддерживаемые демо-сценарии
+
+- Вход (режим сервиса и режим оператора)
+- ICOM-запросы и действия микшера
+- Загрузка/предпрослушивание/воспроизведение звуков
+- Поток объявлений (моковый WebSocket)
+- Взаимодействия с расписаниями/назначениями/переопределениями школы
+- Действия в настройках (громкость, симуляция процесса обновления, команда перезагрузки, сброс демо-состояния)

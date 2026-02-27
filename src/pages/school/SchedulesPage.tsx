@@ -8,7 +8,7 @@ import {
 	ScheduleUpdateRequest,
 	deleteSchedule,
 	dupeSchedule
-} from '@/api/school/schedules';
+} from '@/api/demo';
 import { cn } from '@/utils';
 import React, {
 	createContext,
@@ -23,7 +23,7 @@ import {
 	Lesson,
 	patchBellsSettings,
 	patchLesson
-} from '@/api/lite/bells';
+} from '@/api/demo';
 import ForegroundNotification from '@/components/ForegroundNotification';
 import { useSounds } from '@/sounds';
 import { countMinutes } from '@/utils';

@@ -6,8 +6,8 @@ import {
 	UseQueryResult
 } from '@tanstack/react-query';
 
-import * as icoms from '@/api/icoms';
-import * as sounds from '@/api/sounds';
+import * as icoms from '@/api/demo';
+import * as sounds from '@/api/demo';
 import ForegroundNotification from '@/components/ForegroundNotification';
 import { createContext, useContext, useState } from 'react';
 import {
@@ -30,7 +30,7 @@ import BroadcastMixer from './mixer/broadcast';
 import { Spinner } from 'react-bootstrap';
 import { humanFileSize } from '@/utils';
 import AudioPlayer from '@/components/AudioPlayer';
-import { HTTP_BASE_URL } from '@/api';
+import { buildApiAssetUrl } from '@/api';
 
 
 export interface IcomContextData {
@@ -244,7 +244,9 @@ export default function IcomsPage() {
 							? (
 								<AudioPlayer
 									className='bg-white'
-									src={`${HTTP_BASE_URL}/api/sounds/file/${encodeURIComponent(selectedSoundName)}`}
+									src={buildApiAssetUrl(
+										`/api/sounds/file/${encodeURIComponent(selectedSoundName)}`
+									)}
 								/>
 								// <div className='flex items-center gap-3'>
 								// 	<button className='p-2 bg-blue-500 text-white rounded-full'>

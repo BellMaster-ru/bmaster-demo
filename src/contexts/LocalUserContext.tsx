@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import { UserLocalInfo } from '@/api/auth';
+import { UserLocalInfo } from '@/api/demo';
 
 
 const LocalUserContext = createContext<UserLocalInfo | undefined>(undefined);

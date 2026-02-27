@@ -45,6 +45,10 @@ export const initializeMockEnvironment = (): void => {
 	installMockWebSocketShim();
 };
 
+export const resetDemoState = async (): Promise<void> => {
+	await mockBackend.reset();
+};
+
 export const resolvePlaybackUrl = async (
 	src: string | undefined
 ): Promise<string | undefined> => {
