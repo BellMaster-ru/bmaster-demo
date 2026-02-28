@@ -5,6 +5,7 @@ import type {
   ResponseType,
 } from "axios";
 import { AxiosError } from "axios";
+import bundledSchoolBellSoundUrl from "../assets/sounds/школьный_звонок.mp3";
 
 import {
   clearSoundBlobStore,
@@ -291,6 +292,24 @@ type StreamSessionState = {
   closed: boolean;
 };
 
+type BundledSoundSeed = {
+  name: string;
+  url: string;
+  mime: string;
+  size: number;
+};
+
+const BUNDLED_SOUNDS: BundledSoundSeed[] = [
+  {
+    name: "школьный_звонок.mp3",
+    url: bundledSchoolBellSoundUrl,
+    mime: "audio/mpeg",
+    size: 168753,
+  },
+];
+
+const DEFAULT_BELL_SOUND_NAME = BUNDLED_SOUNDS[0].name;
+
 const jsonClone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 const ensureArray = <T>(value: T[] | undefined | null): T[] =>
@@ -353,6 +372,23 @@ const iterateDateRange = (start: string, end: string): string[] => {
   return result;
 };
 
+const formatTimeHHMM = (date: Date): string => {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
+const makeDefaultScheduleLesson = (fromDate: Date = new Date()): ScheduleLesson => {
+  const startAt = new Date(fromDate.getTime() + 2 * 60 * 1000);
+  const endAt = new Date(fromDate.getTime() + 4 * 60 * 1000);
+  return {
+    start_at: formatTimeHHMM(startAt),
+    start_sound: DEFAULT_BELL_SOUND_NAME,
+    end_at: formatTimeHHMM(endAt),
+    end_sound: DEFAULT_BELL_SOUND_NAME,
+  };
+};
+
 const defaultBellsSettings = (): BellsSettings => ({
   enabled: true,
   weekdays: {
@@ -361,8 +397,8 @@ const defaultBellsSettings = (): BellsSettings => ({
     wednesday: true,
     thursday: true,
     friday: true,
-    saturday: false,
-    sunday: false,
+    saturday: true,
+    sunday: true,
   },
   lessons: [
     {
@@ -374,6 +410,95 @@ const defaultBellsSettings = (): BellsSettings => ({
     },
   ],
 });
+
+const normalizeStoredState = (state: MockState): boolean => {
+  let changed = false;
+
+  for (const bundled of BUNDLED_SOUNDS) {
+    const existingMeta = state.sounds.meta.find(
+      (item) => item.name === bundled.name,
+    );
+    if (!existingMeta) {
+      state.sounds.meta.push({
+        name: bundled.name,
+        size: bundled.size,
+        mime: bundled.mime,
+        sound_specs: null,
+      });
+      changed = true;
+      continue;
+    }
+
+    if (!Number.isFinite(existingMeta.size) || existingMeta.size <= 0) {
+      existingMeta.size = bundled.size;
+      changed = true;
+    }
+    if (!existingMeta.mime) {
+      existingMeta.mime = bundled.mime;
+      changed = true;
+    }
+  }
+
+  state.sounds.meta.sort((a, b) => a.name.localeCompare(b.name));
+
+  if (
+    state.school.schedules.length === 1 &&
+    state.school.schedules[0].name === "Основное расписание" &&
+    (state.school.schedules[0].lessons.length === 0 ||
+      state.school.schedules[0].lessons.length === 1)
+  ) {
+    const defaultSchedule = state.school.schedules[0];
+    const legacyLesson = defaultSchedule.lessons[0];
+    const startAt = legacyLesson?.start_at?.trim();
+    const endAt = legacyLesson?.end_at?.trim();
+    const isLegacyOldTime =
+      legacyLesson &&
+      (startAt === "8:30" || startAt === "08:30") &&
+      (endAt === "9:15" || endAt === "09:15") &&
+      !legacyLesson.start_sound &&
+      !legacyLesson.end_sound;
+    const isEmptyDefault = defaultSchedule.lessons.length === 0;
+    if (isEmptyDefault || isLegacyOldTime) {
+      defaultSchedule.lessons = [makeDefaultScheduleLesson()];
+      changed = true;
+    }
+  }
+
+  if (state.lite.announcements.ring_sound === "ring.wav") {
+    state.lite.announcements.ring_sound = DEFAULT_BELL_SOUND_NAME;
+    changed = true;
+  }
+
+  for (const script of state.scripting.scripts) {
+    for (const command of script.script.commands) {
+      if (
+        command &&
+        command.type === "queries.sound" &&
+        command.sound_name === "lesson-start.wav"
+      ) {
+        command.sound_name = DEFAULT_BELL_SOUND_NAME;
+        changed = true;
+      }
+    }
+  }
+
+  const weekdays = state.lite.bells.weekdays;
+  const isLegacyWeekdayDefaults =
+    weekdays.monday &&
+    weekdays.tuesday &&
+    weekdays.wednesday &&
+    weekdays.thursday &&
+    weekdays.friday &&
+    !weekdays.saturday &&
+    !weekdays.sunday;
+  if (isLegacyWeekdayDefaults) {
+    weekdays.saturday = true;
+    weekdays.sunday = true;
+    changed = true;
+  }
+
+  return changed;
+};
 
 const makeSeedState = (): MockState => {
   const today = todayIsoDate();
@@ -433,21 +558,19 @@ const makeSeedState = (): MockState => {
       ],
     },
     sounds: {
-      meta: [],
+      meta: BUNDLED_SOUNDS.map((sound) => ({
+        name: sound.name,
+        size: sound.size,
+        mime: sound.mime,
+        sound_specs: null,
+      })),
     },
     school: {
       schedules: [
         {
           id: 1,
           name: "Основное расписание",
-          lessons: [
-            {
-              start_at: "8:30",
-              start_sound: "",
-              end_at: "9:15",
-              end_sound: "",
-            },
-          ],
+          lessons: [makeDefaultScheduleLesson()],
         },
       ],
       assignments: [
@@ -468,7 +591,7 @@ const makeSeedState = (): MockState => {
     lite: {
       bells: defaultBellsSettings(),
       announcements: {
-        ring_sound: "ring.wav",
+        ring_sound: DEFAULT_BELL_SOUND_NAME,
       },
     },
     settings: {
@@ -483,7 +606,7 @@ const makeSeedState = (): MockState => {
             commands: [
               {
                 type: "queries.sound",
-                sound_name: "lesson-start.wav",
+                sound_name: DEFAULT_BELL_SOUND_NAME,
                 icom: "main",
                 priority: 1,
                 force: false,
@@ -517,6 +640,7 @@ const parseStoredState = (raw: string | null): MockState | null => {
     if (parsed?.version !== 1) {
       return null;
     }
+    normalizeStoredState(parsed);
     return parsed;
   } catch {
     return null;
@@ -754,6 +878,7 @@ class MockBackend {
     this.initializeIcomRuntime();
     this.resetSchedulerState(Date.now());
     this.persistState();
+    void this.ensureBundledSoundsLoaded();
   }
 
   private createEmptyRuntime(): RuntimeState {
@@ -781,6 +906,96 @@ class MockBackend {
       return;
     }
     window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(this.state));
+  }
+
+  private async ensureBundledSoundsLoaded(): Promise<void> {
+    let changed = false;
+
+    for (const bundled of BUNDLED_SOUNDS) {
+      let record: Awaited<ReturnType<typeof getSoundBlobRecord>> | undefined;
+      try {
+        record = await getSoundBlobRecord(bundled.name);
+      } catch {}
+
+      if (!record && typeof fetch === "function") {
+        try {
+          const response = await fetch(bundled.url);
+          if (response.ok) {
+            const blob = await response.blob();
+            const duration = await computeAudioDuration(blob);
+            const size =
+              Number.isFinite(blob.size) && blob.size > 0
+                ? blob.size
+                : bundled.size;
+            const mime = blob.type || bundled.mime;
+            try {
+              await putSoundBlob({
+                name: bundled.name,
+                blob,
+                size,
+                mime,
+                duration,
+                updated_at: Date.now(),
+              });
+              record = {
+                name: bundled.name,
+                blob,
+                size,
+                mime,
+                duration,
+                updated_at: Date.now(),
+              };
+            } catch {}
+          }
+        } catch {}
+      }
+
+      const metaIndex = this.state.sounds.meta.findIndex(
+        (item) => item.name === bundled.name,
+      );
+      const prevMeta = metaIndex >= 0 ? this.state.sounds.meta[metaIndex] : null;
+
+      const fallbackSize =
+        record && Number.isFinite(record.size) && record.size > 0
+          ? record.size
+          : bundled.size;
+      const fallbackMime = record?.mime || bundled.mime;
+      const fallbackDuration =
+        record?.duration && Number.isFinite(record.duration) && record.duration > 0
+          ? Number(record.duration.toFixed(3))
+          : undefined;
+
+      const nextMeta: SoundMeta = {
+        name: bundled.name,
+        size: prevMeta?.size && prevMeta.size > 0 ? prevMeta.size : fallbackSize,
+        mime: prevMeta?.mime || fallbackMime,
+        sound_specs:
+          prevMeta?.sound_specs ||
+          (fallbackDuration ? { duration: fallbackDuration } : null),
+      };
+
+      if (!prevMeta) {
+        this.state.sounds.meta.push(nextMeta);
+        changed = true;
+        continue;
+      }
+
+      const prevDuration = prevMeta.sound_specs?.duration ?? null;
+      const nextDuration = nextMeta.sound_specs?.duration ?? null;
+      if (
+        prevMeta.size !== nextMeta.size ||
+        prevMeta.mime !== nextMeta.mime ||
+        prevDuration !== nextDuration
+      ) {
+        this.state.sounds.meta[metaIndex] = nextMeta;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      this.state.sounds.meta.sort((a, b) => a.name.localeCompare(b.name));
+      this.persistState();
+    }
   }
 
   private resetSchedulerState(nowMs: number): void {
@@ -1363,7 +1578,9 @@ class MockBackend {
     const icomRuntime = this.ensureIcomRuntime(query.icom);
     this.runtime.queries.set(query.id, query);
 
-    if (query.force && icomRuntime.playing_id) {
+    // Stream announcements should never preempt currently playing events.
+    const shouldPreempt = query.force && query.type !== "api.stream";
+    if (shouldPreempt && icomRuntime.playing_id) {
       this.finishQuery(icomRuntime.playing_id, "cancelled");
     }
 
@@ -2402,7 +2619,7 @@ class MockBackend {
 
         const icomId = typeof message.icom === "string" ? message.icom : "";
         const priority = clamp(toNumber(message.priority, 0), -100, 100);
-        const force = Boolean(message.force);
+        const force = false;
         if (!icomId) {
           session.transport.send(
             JSON.stringify({ type: "error", error: "validation error" }),
@@ -2417,7 +2634,20 @@ class MockBackend {
           return;
         }
 
-        stopStreamQuery();
+        if (session.query_id) {
+          const existingQuery = this.runtime.queries.get(session.query_id);
+          if (
+            existingQuery &&
+            (existingQuery.status === "waiting" ||
+              existingQuery.status === "playing")
+          ) {
+            session.transport.send(
+              JSON.stringify({ type: "error", error: "stream already active" }),
+            );
+            return;
+          }
+          session.query_id = undefined;
+        }
 
         const query: RuntimeQuery = {
           id: randomId(),
@@ -2541,6 +2771,7 @@ class MockBackend {
     this.state = makeSeedState();
     this.persistState();
     await clearSoundBlobStore();
+    await this.ensureBundledSoundsLoaded();
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("bmaster.auth.token");
     }

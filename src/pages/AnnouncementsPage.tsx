@@ -245,7 +245,7 @@ export default function AnnouncementsPage() {
 				type: 'start',
 				icom: 'main',
 				priority: 4,
-				force: true,
+				force: false,
 				codec: 'opus',
 				container: 'webm',
 				mime_type: connection.mimeType,
