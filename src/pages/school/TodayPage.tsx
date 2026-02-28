@@ -254,7 +254,7 @@ const TodayPage = () => {
 										}
 										type='switch'
 									/>
-									<H2>Звонки {muteAllLessons ? 'включены' : 'выключены'}</H2>
+									<H2>Звонки {muteAllLessons ? 'выключены' : 'включены'}</H2>
 								</div>
 							</div>
 						</Panel.Header>
